@@ -28,7 +28,7 @@ export default async function decorate(block) {
 
     // decorate nav DOM
     const nav = document.createElement('nav');
-    nav.innerHTML = html; 
+    nav.innerHTML = html;
     decorateIcons(nav);
 
     const classes = ['brand', 'sections', 'tools'];

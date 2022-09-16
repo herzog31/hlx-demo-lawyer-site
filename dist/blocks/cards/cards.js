@@ -6,7 +6,7 @@ const Card = props => {
     block
   } = props;
   const children = Array.from(block.children);
-  const content = children.map(child => {
+  const content = children.map((child, index) => {
     const isImage = child.children.length === 1 && child.children[0].tagName === 'PICTURE';
 
     if (isImage) {
@@ -14,6 +14,7 @@ const Card = props => {
         width: '750'
       }])));
       return h("div", {
+        key: `card-image-${index}`,
         className: "cards-card-image",
         dangerouslySetInnerHTML: {
           __html: child.innerHTML
@@ -22,6 +23,7 @@ const Card = props => {
     }
 
     return h("div", {
+      key: `card-content-${index}`,
       className: "cards-card-content",
       dangerouslySetInnerHTML: {
         __html: child.innerHTML
@@ -35,7 +37,8 @@ const CardList = props => {
   const {
     block
   } = props;
-  return h("ul", null, Array.from(block.children).map(row => h(Card, {
+  return h("ul", null, Array.from(block.children).map((row, index) => h(Card, {
+    key: `card-${index}`,
     block: row
   })));
 };
