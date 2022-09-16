@@ -369,6 +369,7 @@ export async function loadBlock(block, eager = false) {
       const decorationComplete = new Promise((resolve) => {
         (async () => {
           try {
+            // TODO: Replace with Preact render method
             const mod = await import(`../dist/blocks/${blockName}/${blockName}.js`);
             if (mod.default) {
               await mod.default(block, blockName, document, eager);
