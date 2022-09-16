@@ -1,0 +1,28 @@
+.accordion .item {
+    background-color: var(--highlight-background-color);
+    padding: 5px;
+    margin-bottom: 1px;
+}
+.accordion .title {
+    cursor: pointer;
+    font-size: var(--heading-font-size-s);
+    font-weight: bold;
+}
+.accordion .item--closed .title::before {
+    content: '+';
+    font-weight: bold;
+    font-size: 24px;
+    padding: 0 15px 0 5px;
+}
+.accordion .item--open .title::before {
+    content: '-';
+    font-weight: bold;
+    font-size: 24px;
+    padding: 0 15px 0 5px;
+}
+.accordion .panel {
+    padding: 25px;
+}
+.accordion .item--closed .panel {
+    display: none;
+}
