@@ -25,7 +25,7 @@ const Accordion = props => {
   return h("div", {
     className: "accordion block"
   }, titles.map((title, index) => {
-    const classModifier = openPanels.has(index) ? 'item--open' : 'item--closed';
+    const classModifier = openPanels.has(index) ? 'item-open' : 'item-closed';
     return h("div", {
       key: `accordion-item-${index}`,
       className: `item ${classModifier}`
