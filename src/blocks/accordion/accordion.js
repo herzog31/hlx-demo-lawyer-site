@@ -21,7 +21,7 @@ const Accordion = (props) => {
 
   return <div className="accordion block">
     {titles.map((title, index) => {
-      const classModifier = openPanels.has(index) ? 'item--open' : 'item--closed';
+      const classModifier = openPanels.has(index) ? 'item-open' : 'item-closed';
       return <div key={`accordion-item-${index}`} className={`item ${classModifier}`}>
         <div className="title" onClick={() => togglePanel(index)}>{title}</div>
         <div className="panel" dangerouslySetInnerHTML={{ __html: panels[index].innerHTML }} />
