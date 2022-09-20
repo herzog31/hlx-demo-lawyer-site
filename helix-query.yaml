@@ -41,3 +41,16 @@ indices:
         select: none
         value: |
           parseTimestamp(headers['last-modified'], 'ddd, DD MMM YYYY hh:mm:ss GMT')
+  recipes:
+    include:
+      - '/recipes/**'
+    target: https://docs.google.com/spreadsheets/d/1wBwwl9fz5I6IIU9iaguLB_OB--dGaqchqYOnZkj5DDE/edit#gid=0
+    properties:
+      title:
+        select: head > meta[property="og:title"]
+        value: |
+          attribute(el, 'content')
+      categories:
+        select: head > meta[name="categories"]
+        values: |
+          match(attribute(el, 'content'), '([^,]+)')
