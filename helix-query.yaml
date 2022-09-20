@@ -4,10 +4,10 @@ version: 1
 indices:
   site:
     include:
-      - '/mysite/**'
+      - '/**'
     exclude:
       - '**/Document.*'
-    # target: SharePoint URL of your query index, e.g. <shared-folder-url>/query-index.xlsx
+    target: https://docs.google.com/spreadsheets/d/15eOq-OWK9BlsYnjNITBJRo1ThVpI6VAfr3-N3zhToPw/edit#gid=0
     properties:
       author:
         select: head > meta[name="author"]
