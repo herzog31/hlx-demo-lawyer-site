@@ -53,4 +53,4 @@ indices:
       categories:
         select: head > meta[name="categories"]
         values: |
-          match(attribute(el, 'content'), '([^,]+)')
+          match(attribute(el, 'content'), '([^ ,]+)')
