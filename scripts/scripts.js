@@ -364,12 +364,13 @@ export async function loadBlock(block, eager = false) {
     const blockName = block.getAttribute('data-block-name');
     try {
       const cssLoaded = new Promise((resolve) => {
-        loadCSS(`${window.hlx.codeBasePath}/blocks/${blockName}/${blockName}.css`, resolve);
+        loadCSS(`${window.hlx.codeBasePath}/src/blocks/${blockName}/${blockName}.css`, resolve);
       });
       const decorationComplete = new Promise((resolve) => {
         (async () => {
           try {
-            const mod = await import(`../blocks/${blockName}/${blockName}.js`);
+            // TODO: Replace with Preact render method
+            const mod = await import(`../dist/blocks/${blockName}/${blockName}.js`);
             if (mod.default) {
               await mod.default(block, blockName, document, eager);
             }
