@@ -7,7 +7,7 @@ indices:
       - '/**'
     exclude:
       - '**/Document.*'
-    target: https://docs.google.com/spreadsheets/d/15eOq-OWK9BlsYnjNITBJRo1ThVpI6VAfr3-N3zhToPw
+    target: /query-index
     properties:
       author:
         select: head > meta[name="author"]
@@ -44,7 +44,7 @@ indices:
   recipes:
     include:
       - '/recipes/**'
-    target: https://docs.google.com/spreadsheets/d/1wBwwl9fz5I6IIU9iaguLB_OB--dGaqchqYOnZkj5DDE
+    target: /recipes-index
     properties:
       title:
         select: head > meta[property="og:title"]
