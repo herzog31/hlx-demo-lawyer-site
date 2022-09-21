@@ -54,3 +54,16 @@ indices:
         select: head > meta[name="categories"]
         values: |
           match(attribute(el, 'content'), '([^ ,]+)')
+      image:
+        select: head > meta[property="og:image"]
+        value: |
+          match(attribute(el, 'content'), 'https:\/\/[^/]+(\/.*)')
+      time:
+        select: head > meta[name="time"]
+        value: |
+          attribute(el, 'content')
+      difficulty:
+        select: head > meta[name="difficulty"]
+        value: |
+          attribute(el, 'content')
+
