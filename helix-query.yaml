@@ -4,7 +4,7 @@ version: 1
 indices:
   site:
     include:
-      - '/**'
+      - '**'
     exclude:
       - '**/Document.*'
     target: /query-index
