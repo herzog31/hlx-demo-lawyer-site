@@ -1,4 +1,5 @@
 {
     "project": "Lawyer",
-    "host": "www.marbec.click"
+    "host": "www.marbec.click",
+    "byocdn": true
 }
