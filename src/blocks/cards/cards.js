@@ -1,35 +1,18 @@
-import { h, render } from 'https://unpkg.com/preact@latest?module';
-
-import { createOptimizedPicture } from '../../../scripts/scripts.js';
-
-const Card = (props) => {
-  const { block } = props;
-  const children = Array.from(block.children);
-
-  const content = children.map((child, index) => {
-    const isImage = child.children.length === 1 && child.children[0].tagName === 'PICTURE';
-
-    if (isImage) {
-      child.querySelectorAll('img').forEach((img) => img.closest('picture').replaceWith(createOptimizedPicture(img.src, img.alt, false, [{ width: '750' }])));
-      return <div key={`card-image-${index}`} className="cards-card-image" dangerouslySetInnerHTML={{ __html: child.innerHTML }} />;
-    }
-    return <div key={`card-content-${index}`} className="cards-card-content" dangerouslySetInnerHTML={{ __html: child.innerHTML }} />;
-  });
-
-  return <li>{content}</li>;
-};
-
-const CardList = (props) => {
-  const { block } = props;
-
-  return <ul>
-    {Array.from(block.children).map((row, index) => <Card key={`card-${index}`} block={row} />)}
-  </ul>;
-};
+import { createOptimizedPicture } from '../../../scripts/lib-franklin.js';
 
 export default function decorate(block) {
-  // TODO: Put in special render method
-  const content = block.cloneNode(true);
+  /* change to ul, li */
+  const ul = document.createElement('ul');
+  [...block.children].forEach((row) => {
+    const li = document.createElement('li');
+    li.innerHTML = row.innerHTML;
+    [...li.children].forEach((div) => {
+      if (div.children.length === 1 && div.querySelector('picture')) div.className = 'cards-card-image';
+      else div.className = 'cards-card-body';
+    });
+    ul.append(li);
+  });
+  ul.querySelectorAll('img').forEach((img) => img.closest('picture').replaceWith(createOptimizedPicture(img.src, img.alt, false, [{ width: '750' }])));
   block.textContent = '';
-  render(<CardList block={content} />, block);
+  block.append(ul);
 }

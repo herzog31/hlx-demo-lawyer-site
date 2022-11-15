@@ -1,4 +1,5 @@
-import { readBlockConfig, decorateIcons } from '../../../scripts/scripts.js';
+import { readBlockConfig, decorateIcons } from '../../../scripts/lib-franklin.js';
+
 /**
  * collapses all open nav sections
  * @param {Element} sections The container element
@@ -9,22 +10,23 @@ function collapseAllNavSections(sections) {
     section.setAttribute('aria-expanded', 'false');
   });
 }
+
 /**
  * decorates the header, mainly the nav
  * @param {Element} block The header block element
  */
 
-
 export default async function decorate(block) {
   const cfg = readBlockConfig(block);
-  block.textContent = ''; // fetch nav content
+  block.textContent = '';
 
+  // fetch nav content
   const navPath = cfg.nav || '/nav';
   const resp = await fetch(`${navPath}.plain.html`);
-
   if (resp.ok) {
-    const html = await resp.text(); // decorate nav DOM
+    const html = await resp.text();
 
+    // decorate nav DOM
     const nav = document.createElement('nav');
     nav.innerHTML = html;
     decorateIcons(nav);
@@ -34,7 +36,6 @@ export default async function decorate(block) {
       if (section) section.classList.add(`nav-${e}`);
     });
     const navSections = [...nav.children][1];
-
     if (navSections) {
       navSections.querySelectorAll(':scope > ul > li').forEach(navSection => {
         if (navSection.querySelector('ul')) navSection.classList.add('nav-drop');
@@ -44,9 +45,9 @@ export default async function decorate(block) {
           navSection.setAttribute('aria-expanded', expanded ? 'false' : 'true');
         });
       });
-    } // hamburger for mobile
+    }
 
-
+    // hamburger for mobile
     const hamburger = document.createElement('div');
     hamburger.classList.add('nav-hamburger');
     hamburger.innerHTML = '<div class="nav-hamburger-icon"></div>';
