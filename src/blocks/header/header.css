@@ -27,7 +27,7 @@ header nav[aria-expanded='true'] {
 }
 
 /* brand */
-header .nav-brand { 
+header .nav-brand {
   grid-area: brand;
   font-size: 22px;
   font-weight: 700;
