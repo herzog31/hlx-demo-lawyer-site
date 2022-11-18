@@ -158,7 +158,9 @@ const ProductPage = props => {
     }
 
     // Set metadata
-    document.title = product.metaTitle;
+    if (product.metaTitle) {
+      document.title = product.metaTitle;
+    }
     setMetaIfNotExists('og:title', product.metaTitle, true);
     setMetaIfNotExists('og:image', product.images[0].url, true);
     setMetaIfNotExists('og:image:secure_url', product.images[0].url, true);
