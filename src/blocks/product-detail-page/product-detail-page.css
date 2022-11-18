@@ -1,0 +1,14 @@
+.product-detail-page {
+    display: flex;
+    flex-direction: row;
+}
+
+.product-detail-page .gallery {
+    width: 30%;
+    padding-right: 15px;
+}
+
+.product-detail-page .details {
+    width: 70%;
+    padding-left: 15px;
+}
