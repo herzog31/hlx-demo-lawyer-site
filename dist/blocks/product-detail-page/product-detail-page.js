@@ -38,11 +38,12 @@ const fetchProduct = async sku => {
   }).then(res => res.json());
   return response.data.products && response.data.products.length > 0 ? response.data.products[0] : null;
 };
-const makeSecure = url => {
-  if (url.startsWith('http://')) {
-    return url.replace('http://', 'https://');
-  }
-  return url;
+const optimizeImageUrl = url => {
+  const newURL = new URL(url);
+  // Rewrite image URL to use venia.magento.com which has CDN to optimize images
+  newURL.hostname = 'jnz3dtiuj77ca.dummycachetest.com';
+  newURL.protocol = 'https';
+  return newURL.toString();
 };
 const setMetaIfNotExists = (name, content, property = false) => {
   if (!content) {
@@ -116,7 +117,7 @@ const ProductPage = props => {
             value = value.innerHTML;
           } else if (key === 'images') {
             value = Array.from(value.querySelectorAll('img')).map(img => ({
-              url: makeSecure(img.src),
+              url: optimizeImageUrl(img.src),
               label: img.alt
             }));
           } else if (key === 'addToCartAllowed') {
@@ -141,7 +142,7 @@ const ProductPage = props => {
         const productResponse = await fetchProduct(sku);
         productResponse.images = productResponse.images.map(image => ({
           ...image,
-          url: makeSecure(image.url)
+          url: optimizeImageUrl(image.url)
         }));
         if (!productResponse) {
           document.location = '/404';
