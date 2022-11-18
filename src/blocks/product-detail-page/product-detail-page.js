@@ -55,8 +55,6 @@ const Image = (props) => {
     src = src.replace('http://', 'https://');
   }
 
-  console.log('src', src);
-
   const optimizedSources = [];
   breakpoints.forEach((breakpoint) => {
     optimizedSources.push(<source media={breakpoint.media} type="image/webp" srcSet={`${src}?width=${breakpoint.width}&format=webply&optimize=medium`} />);

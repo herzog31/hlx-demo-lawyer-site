@@ -59,7 +59,6 @@ const Image = props => {
   if (src.startsWith('http://')) {
     src = src.replace('http://', 'https://');
   }
-  console.log('src', src);
   const optimizedSources = [];
   breakpoints.forEach(breakpoint => {
     optimizedSources.push(h("source", {
