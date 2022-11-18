@@ -5,7 +5,7 @@
 
 .product-detail-page .gallery {
     width: 100%;
-    height: 500px;
+    aspect-ratio: 1 / 1.25;
 }
 
 .product-detail-page .gallery img {
@@ -29,6 +29,7 @@
     .product-detail-page .gallery {
         width: 350px;
         padding-right: 15px;
+        height: 500px;
     }
 
     .product-detail-page .details {

@@ -139,7 +139,7 @@ const ProductPage = (props) => {
 
   return <div className="product-detail-page block">
     <div className="gallery">
-      <Image src={firstImage.url} alt={firstImage.label} breakpoints={[{ width: '350' }]} width="100%" height="500" />
+      <Image src={firstImage.url} alt={firstImage.label} breakpoints={[{ width: '350' }]} />
     </div>
     <div className="details">
       <h1>{name}</h1>
