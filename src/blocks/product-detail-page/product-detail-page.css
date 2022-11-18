@@ -1,4 +1,9 @@
-.product-detail-page {
+/* Hide component until page is ready */
+.body .product-detail-page {
+    display: none;
+}
+
+.body.appear .product-detail-page {
     display: flex;
     flex-direction: column;
 }
