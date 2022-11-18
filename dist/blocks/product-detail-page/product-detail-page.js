@@ -45,6 +45,9 @@ const makeSecure = url => {
   return url;
 };
 const setMetaIfNotExists = (name, content, property = false) => {
+  if (!content) {
+    return;
+  }
   const meta = document.querySelector(`meta[${property ? 'property' : 'name'}="${name}"]`);
   if (!meta) {
     const newMeta = document.createElement('meta');
