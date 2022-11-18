@@ -38,22 +38,35 @@ const fetchProduct = async (sku) => {
     }),
   }).then((res) => res.json());
 
-  return response.data.products && response.data.products.length > 0 ?
-    response.data.products[0] : null;
+  return response.data.products && response.data.products.length > 0
+    ? response.data.products[0] : null;
+};
+
+const makeSecure = (url) => {
+  if (url.startsWith('http://')) {
+    return url.replace('http://', 'https://');
+  }
+  return url;
+};
+
+const setMetaIfNotExists = (name, content, property = false) => {
+  const meta = document.querySelector(`meta[${property ? 'property' : 'name'}="${name}"]`);
+  if (!meta) {
+    const newMeta = document.createElement('meta');
+    newMeta[property ? 'property' : 'name'] = name;
+    newMeta.content = content;
+    document.head.append(newMeta);
+    return;
+  }
+  meta.content = content;
 };
 
 const Image = (props) => {
   const {
-    breakpoints = [{ media: '(min-width: 400px)', width: '2000' }, { width: '750' }], alt = '', eager = false, ...otherProps
+    breakpoints = [{ media: '(min-width: 400px)', width: '2000' }, { width: '750' }], alt = '', src, eager = false, ...otherProps
   } = props;
-  let { src } = props;
 
   const ext = src.substring(src.lastIndexOf('.') + 1);
-
-  // Enforce https
-  if (src.startsWith('http://')) {
-    src = src.replace('http://', 'https://');
-  }
 
   const optimizedSources = [];
   breakpoints.forEach((breakpoint) => {
@@ -95,7 +108,7 @@ const ProductPage = (props) => {
             value = value.innerHTML;
           } else if (key === 'images') {
             value = Array.from(value.querySelectorAll('img')).map((img) => ({
-              url: img.src,
+              url: makeSecure(img.src),
               label: img.alt,
             }));
           } else if (key === 'addToCartAllowed') {
@@ -118,6 +131,10 @@ const ProductPage = (props) => {
         const sku = params.get('sku');
         console.debug('Got sku', sku);
         const productResponse = await fetchProduct(sku);
+        productResponse.images = productResponse.images.map((image) => ({
+          ...image,
+          url: makeSecure(image.url),
+        }));
         if (!productResponse) {
           document.location = '/404';
           return;
@@ -128,18 +145,35 @@ const ProductPage = (props) => {
     })();
   }, []);
 
+  useEffect(() => {
+    if (!product) {
+      return;
+    }
+
+    // Set metadata
+    document.title = product.metaTitle;
+    setMetaIfNotExists('og:title', product.metaTitle, true);
+    setMetaIfNotExists('og:image', product.images[0].url, true);
+    setMetaIfNotExists('og:image:secure_url', product.images[0].url, true);
+    setMetaIfNotExists('og:url', `https://www.marbec.click/product-page/${product.sku}`, true);
+    setMetaIfNotExists('description', product.metaDescription);
+    setMetaIfNotExists('twitter:title', product.metaTitle);
+    setMetaIfNotExists('twitter:description', product.metaDescription);
+    setMetaIfNotExists('twitter:image', product.images[0].url);
+  }, [product]);
+
   if (!product) {
     return <div>Loading...</div>;
   }
 
   const {
-    sku, name, description, addToCartAllowed, images
+    sku, name, description, addToCartAllowed, images,
   } = product;
   const [firstImage] = images;
 
   return <div className="product-detail-page block">
     <div className="gallery">
-      <Image src={firstImage.url} alt={firstImage.label} breakpoints={[{ width: '350' }]} />
+      <Image src={firstImage.url} alt={firstImage.label} eager={true} breakpoints={[{ width: '350' }]} />
     </div>
     <div className="details">
       <h1>{name}</h1>
