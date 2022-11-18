@@ -46,12 +46,20 @@ const Image = props => {
     }, {
       width: '750'
     }],
-    src,
     alt = '',
     eager = false,
     ...otherProps
   } = props;
+  let {
+    src
+  } = props;
   const ext = src.substring(src.lastIndexOf('.') + 1);
+
+  // Enforce https
+  if (src.startsWith('http://')) {
+    src = src.replace('http://', 'https://');
+  }
+  console.log('src', src);
   const optimizedSources = [];
   breakpoints.forEach(breakpoint => {
     optimizedSources.push(h("source", {
