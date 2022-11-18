@@ -155,7 +155,9 @@ const ProductPage = props => {
     alt: firstImage.label,
     breakpoints: [{
       width: '350'
-    }]
+    }],
+    width: "100%",
+    height: "500"
   })), h("div", {
     className: "details"
   }, h("h1", null, name), addToCartAllowed && h("button", {
