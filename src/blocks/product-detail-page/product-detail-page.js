@@ -1,17 +1,7 @@
 import { h, render } from 'https://unpkg.com/preact@latest?module';
 import { useEffect, useState } from 'https://unpkg.com/preact@latest/hooks/dist/hooks.module.js?module';
 
-// TODO: Move to some config
-const endpoint = 'https://catalog-service.adobe.io/graphql';
-const headers = {
-  'Magento-Environment-Id': '1f131648-b696-4bd1-af57-2021c7080b56',
-  'Magento-Website-Code': 'base',
-  'Magento-Store-View-Code': 'default',
-  'Magento-Store-Code': 'main_website_store',
-  'Magento-Customer-Group': '356a192b7913b04c54574d18c28d46e6395428ab',
-  'x-api-key': 'adobe-consulting-de-1',
-  'Content-Type': 'application/json',
-};
+const endpoint = 'https://www.marbec.click/graphql';
 
 const query = (sku) => `{
     products(skus: ["${sku}"]) {
@@ -32,7 +22,9 @@ const query = (sku) => `{
 const fetchProduct = async (sku) => {
   const response = await fetch(endpoint, {
     method: 'POST',
-    headers,
+    headers: {
+      'Content-Type': 'application/json',
+    },
     body: JSON.stringify({
       query: query(sku),
     }),
