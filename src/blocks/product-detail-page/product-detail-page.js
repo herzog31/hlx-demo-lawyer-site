@@ -170,7 +170,7 @@ const ProductPage = (props) => {
   }, [product]);
 
   if (!product) {
-    return <div>Loading...</div>;
+    return <div className="product-detail-page block" />;
   }
 
   const {

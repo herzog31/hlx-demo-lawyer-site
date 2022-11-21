@@ -1,11 +1,7 @@
-/* Hide component until page is ready */
-body .product-detail-page {
-    display: none;
-}
-
-body.appear .product-detail-page {
+.product-detail-page {
     display: flex;
     flex-direction: column;
+    min-height: 600px;
 }
 
 .product-detail-page .gallery {
@@ -27,8 +23,9 @@ body.appear .product-detail-page {
 }
 
 @media (min-width: 1024px) {
-    body.appear .product-detail-page {
+    .product-detail-page {
         flex-direction: row;
+        min-height: 500px;
     }
 
     .product-detail-page .gallery {

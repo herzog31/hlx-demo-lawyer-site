@@ -172,7 +172,9 @@ const ProductPage = props => {
     setMetaIfNotExists('twitter:image', product.images[0].url);
   }, [product]);
   if (!product) {
-    return h("div", null, "Loading...");
+    return h("div", {
+      className: "product-detail-page block"
+    });
   }
   const {
     sku,
