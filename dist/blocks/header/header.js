@@ -59,6 +59,9 @@ export default async function decorate(block) {
     nav.prepend(hamburger);
     nav.setAttribute('aria-expanded', 'false');
     decorateIcons(nav);
+
+    // Fix accessibility of search link
+    nav.querySelector('a[href*="/search"]').setAttribute('aria-label', 'Search');
     block.append(nav);
   }
 }
