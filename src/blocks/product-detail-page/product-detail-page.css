@@ -10,7 +10,7 @@ body.appear .product-detail-page {
 
 .product-detail-page .gallery {
     width: 100%;
-    aspect-ratio: 1 / 1.25;
+    height: 420px;
 }
 
 .product-detail-page .gallery img {
