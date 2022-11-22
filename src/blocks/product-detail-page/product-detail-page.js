@@ -94,8 +94,8 @@ const ProductPage = (props) => {
       // Check if empty or not
       if (props.content.querySelector(':scope > div > div').textContent !== '') {
         console.debug('Pre-rendered product detected, parse product from DOM');
-
         const domProps = {};
+        // Go through block and read product properties
         const rows = Array.from(content.querySelectorAll(':scope > div'));
         rows.forEach((row) => {
           let [key, value] = Array.from(row.children);
@@ -113,9 +113,10 @@ const ProductPage = (props) => {
           } else {
             value = value.textContent.trim();
           }
+
           domProps[key] = value;
         });
-        console.debug('Got product', domProps);
+
         setProduct(domProps);
       } else {
         console.debug('No pre-rendered product detected, load product by sku');
@@ -127,16 +128,18 @@ const ProductPage = (props) => {
         }
         const sku = params.get('sku');
         console.debug('Got sku', sku);
+
         const productResponse = await fetchProduct(sku);
         productResponse.images = productResponse.images.map((image) => ({
           ...image,
           url: optimizeImageUrl(image.url),
         }));
+
         if (!productResponse) {
           document.location = '/404';
           return;
         }
-        console.debug('Got product', productResponse);
+
         setProduct(productResponse);
       }
     })();
@@ -146,6 +149,10 @@ const ProductPage = (props) => {
     if (!product) {
       return;
     }
+
+    // Let Franklin now block is fully loaded
+    console.debug('Done loading product', product);
+    props.loadingDone();
 
     // Set metadata
     if (product.metaTitle) {
@@ -183,7 +190,9 @@ const ProductPage = (props) => {
 };
 
 export default function decorate(block) {
-  const content = block.cloneNode(true);
-  block.textContent = '';
-  render(<ProductPage content={content} />, block.parentNode, block);
+  return new Promise((resolve) => {
+    const content = block.cloneNode(true);
+    block.textContent = '';
+    render(<ProductPage content={content} loadingDone={resolve} />, block.parentNode, block);
+  });
 }
