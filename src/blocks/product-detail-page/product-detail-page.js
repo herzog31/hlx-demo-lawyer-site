@@ -1,7 +1,12 @@
 import { h, render } from 'https://unpkg.com/preact@latest?module';
 import { useEffect, useState } from 'https://unpkg.com/preact@latest/hooks/dist/hooks.module.js?module';
 import { GRAPHQL_ENDPOINT } from '../../../scripts/scripts.js';
-import { optimizeImageUrl, fetchProduct, readDomProps, Image } from '../../common/product.js';
+import {
+  optimizeImageUrl,
+  fetchProduct,
+  readDomProps,
+  Image,
+} from '../../common/product.js';
 
 const setMetaIfNotExists = (name, content, property = false) => {
   if (!content) {

@@ -59,8 +59,8 @@
 }
 
 .product-teaser .teaser-content .teaser-title {
-    margin: 0px;
-    background-color: rgba(0, 0, 0, 0.2);
+    margin: 0;
+    background-color: rgb(0 0 0 / 20%);
     border-radius: 25px;
     width: fit-content;
     padding: 15px 25px;

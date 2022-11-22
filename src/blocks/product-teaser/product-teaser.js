@@ -16,10 +16,8 @@ const ProductTeaser = (props) => {
   useEffect(() => {
     (async () => {
       const domProps = readDomProps(content);
-      console.log('ProductTeaser domProps', domProps);
 
       if (domProps.sku && !domProps.name) {
-        console.log('need to load product client-side');
         const productResponse = await fetchProduct(GRAPHQL_ENDPOINT, domProps.sku);
         if (!productResponse) {
           console.error('Could not load product', domProps.sku);
