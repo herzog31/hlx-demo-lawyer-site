@@ -1,0 +1,67 @@
+.product-teaser {
+    display: block;
+    overflow: hidden;
+    position: relative;
+    width: 100%;
+    height: 400px;
+}
+
+.product-teaser .teaser-image {
+    width: 100%;
+    height: 100%;
+}
+
+.product-teaser .teaser-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    object-position: top center;
+}
+
+.product-teaser .teaser-content {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 1;
+    padding: 25px;
+}
+
+.product-teaser .teaser-actions .teaser-action {
+    font-family: var(--body-font-family);
+    display: inline-block;
+    box-sizing: border-box;
+    text-decoration: none;
+    border: 2px solid transparent;
+    padding: 5px 30px;
+    text-align: center;
+    font-style: normal;
+    font-weight: 600;
+    cursor: pointer;
+    color: var(--background-color);
+    background-color: var(--link-color);
+    margin: 16px 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    border-radius: 30px;
+    font-size: var(--body-font-size-s);
+}
+
+.product-teaser .teaser-actions .teaser-action:hover,
+.product-teaser .teaser-actions .teaser-action:focus {
+    background-color: var(--link-hover-color);
+    cursor: pointer;
+}
+
+.product-teaser .teaser-content .teaser-title {
+    margin: 0;
+    background-color: rgb(0 0 0 / 20%);
+    border-radius: 25px;
+    width: fit-content;
+    padding: 15px 25px;
+}

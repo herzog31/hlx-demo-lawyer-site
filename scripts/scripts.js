@@ -16,6 +16,8 @@ import {
 const LCP_BLOCKS = ['product-detail-page']; // add your LCP blocks to the list
 window.hlx.RUM_GENERATION = 'project-1'; // add your RUM generation information here
 
+export const GRAPHQL_ENDPOINT = 'https://www.marbec.click/graphql';
+
 function buildHeroBlock(main) {
   const h1 = main.querySelector('h1');
   const picture = main.querySelector('picture');

@@ -1,34 +1,12 @@
 import { h, render } from 'https://unpkg.com/preact@latest?module';
 import { useEffect, useState } from 'https://unpkg.com/preact@latest/hooks/dist/hooks.module.js?module';
-
-const endpoint = 'https://www.marbec.click/graphql';
-
-const GetProductsBySkus = 'query GetProductsBySkus($skus: [String]) { products(skus: $skus) { sku name description addToCartAllowed metaDescription metaKeyword metaTitle images(roles: ["image"]) { label url } } }';
-
-const fetchProduct = async (sku) => {
-  const url = new URL(endpoint);
-  url.searchParams.set('query', GetProductsBySkus);
-  url.searchParams.set('variables', JSON.stringify({ skus: [sku] }));
-
-  const response = await fetch(url, {
-    method: 'GET',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-  }).then((res) => res.json());
-
-  return response.data.products && response.data.products.length > 0
-    ? response.data.products[0] : null;
-};
-
-const optimizeImageUrl = (url) => {
-  const newURL = new URL(url);
-  // Rewrite image URL to use venia.magento.com which has CDN to optimize images
-  newURL.hostname = 'jnz3dtiuj77ca.dummycachetest.com';
-  newURL.protocol = 'https';
-
-  return newURL.toString();
-};
+import { GRAPHQL_ENDPOINT } from '../../../scripts/scripts.js';
+import {
+  optimizeImageUrl,
+  fetchProduct,
+  readDomProps,
+  Image,
+} from '../../common/product.js';
 
 const setMetaIfNotExists = (name, content, property = false) => {
   if (!content) {
@@ -45,33 +23,6 @@ const setMetaIfNotExists = (name, content, property = false) => {
   meta.content = content;
 };
 
-const Image = (props) => {
-  const {
-    breakpoints = [{ media: '(min-width: 400px)', width: '2000' }, { width: '750' }], alt = '', src, eager = false, ...otherProps
-  } = props;
-
-  const ext = src.substring(src.lastIndexOf('.') + 1);
-
-  const optimizedSources = [];
-  breakpoints.forEach((breakpoint) => {
-    optimizedSources.push(<source media={breakpoint.media} type="image/webp" srcSet={`${src}?width=${breakpoint.width}&format=webply&optimize=medium`} />);
-  });
-
-  const fallbackSources = [];
-  breakpoints.forEach((breakpoint, i) => {
-    if (i < breakpoints.length - 1) {
-      fallbackSources.push(<source media={breakpoint.media} srcSet={`${src}?width=${breakpoint.width}&format=${ext}&optimize=medium`} />);
-    } else {
-      fallbackSources.push(<img src={`${src}?width=${breakpoint.width}&format=${ext}&optimize=medium`} alt={alt} loading={eager ? 'eager' : 'lazy'} {...otherProps} />);
-    }
-  });
-
-  return <picture>
-    {optimizedSources}
-    {fallbackSources}
-  </picture>;
-};
-
 const ProductPage = (props) => {
   const { content } = props;
   const [product, setProduct] = useState(null);
@@ -81,29 +32,7 @@ const ProductPage = (props) => {
       // Check if empty or not
       if (props.content.querySelector(':scope > div > div').textContent !== '') {
         console.debug('Pre-rendered product detected, parse product from DOM');
-        const domProps = {};
-        // Go through block and read product properties
-        const rows = Array.from(content.querySelectorAll(':scope > div'));
-        rows.forEach((row) => {
-          let [key, value] = Array.from(row.children);
-          key = key.textContent.trim();
-
-          if (key === 'description') {
-            value = value.innerHTML;
-          } else if (key === 'images') {
-            value = Array.from(value.querySelectorAll('img')).map((img) => ({
-              url: optimizeImageUrl(img.src),
-              label: img.alt,
-            }));
-          } else if (key === 'addToCartAllowed') {
-            value = value.textContent.trim() === 'true';
-          } else {
-            value = value.textContent.trim();
-          }
-
-          domProps[key] = value;
-        });
-
+        const domProps = readDomProps(content);
         setProduct(domProps);
       } else {
         console.debug('No pre-rendered product detected, load product by sku');
@@ -116,16 +45,16 @@ const ProductPage = (props) => {
         const sku = params.get('sku');
         console.debug('Got sku', sku);
 
-        const productResponse = await fetchProduct(sku);
-        productResponse.images = productResponse.images.map((image) => ({
-          ...image,
-          url: optimizeImageUrl(image.url),
-        }));
-
+        const productResponse = await fetchProduct(GRAPHQL_ENDPOINT, sku);
         if (!productResponse) {
           document.location = '/404';
           return;
         }
+
+        productResponse.images = productResponse.images.map((image) => ({
+          ...image,
+          url: optimizeImageUrl(image.url),
+        }));
 
         setProduct(productResponse);
       }
@@ -137,7 +66,7 @@ const ProductPage = (props) => {
       return;
     }
 
-    // Let Franklin now block is fully loaded
+    // Block is fully loaded
     console.debug('Done loading product', product);
     props.loadingDone();
 
