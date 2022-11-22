@@ -3,31 +3,18 @@ import { useEffect, useState } from 'https://unpkg.com/preact@latest/hooks/dist/
 
 const endpoint = 'https://www.marbec.click/graphql';
 
-const query = (sku) => `{
-    products(skus: ["${sku}"]) {
-        sku  
-        name
-        description
-        addToCartAllowed
-        metaDescription
-        metaKeyword
-        metaTitle
-        images(roles: ["image"]) {
-            label
-            url
-        }
-    }
-  }`;
+const GetProductsBySkus = 'query GetProductsBySkus($skus: [String]) { products(skus: $skus) { sku name description addToCartAllowed metaDescription metaKeyword metaTitle images(roles: ["image"]) { label url } } }';
 
 const fetchProduct = async (sku) => {
-  const response = await fetch(endpoint, {
-    method: 'POST',
+  const url = new URL(endpoint);
+  url.searchParams.set('query', GetProductsBySkus);
+  url.searchParams.set('variables', JSON.stringify({ skus: [sku] }));
+
+  const response = await fetch(url, {
+    method: 'GET',
     headers: {
       'Content-Type': 'application/json',
     },
-    body: JSON.stringify({
-      query: query(sku),
-    }),
   }).then((res) => res.json());
 
   return response.data.products && response.data.products.length > 0
