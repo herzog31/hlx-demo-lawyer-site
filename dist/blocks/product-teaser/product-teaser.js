@@ -14,7 +14,7 @@ const ProductTeaser = props => {
       if (domProps.sku && !domProps.name) {
         const productResponse = await fetchProduct(GRAPHQL_ENDPOINT, domProps.sku);
         if (!productResponse) {
-          console.error('Could not load product', domProps.sku);
+          console.error('Could not load product from GraphQL', domProps.sku);
           this.loadingDone();
           return;
         }
@@ -29,7 +29,7 @@ const ProductTeaser = props => {
       } else if (domProps.sku && domProps.name) {
         setProduct(domProps);
       } else {
-        console.error('Invalid block, do nothing');
+        console.error('Invalid block format, do nothing');
         this.loadingDone();
       }
     })();
