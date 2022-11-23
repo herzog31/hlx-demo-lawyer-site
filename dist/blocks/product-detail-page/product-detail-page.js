@@ -1,7 +1,7 @@
 import { h, render } from 'https://unpkg.com/preact@latest?module';
 import { useEffect, useState } from 'https://unpkg.com/preact@latest/hooks/dist/hooks.module.js?module';
 import { GRAPHQL_ENDPOINT } from '../../../scripts/scripts.js';
-import { optimizeImageUrl, fetchProduct, readDomProps, Image } from '../../common/product.js';
+import { optimizeImageUrl, fetchProduct, readDomProps, Image, fetchProductPrice, formatPrice } from '../../common/product.js';
 const setMetaIfNotExists = (name, content, property = false) => {
   if (!content) {
     return;
@@ -16,9 +16,23 @@ const setMetaIfNotExists = (name, content, property = false) => {
   }
   meta.content = content;
 };
+const updateMetadata = product => {
+  if (product.metaTitle) {
+    document.title = product.metaTitle;
+  }
+  setMetaIfNotExists('og:title', product.metaTitle, true);
+  setMetaIfNotExists('og:image', product.images[0].url, true);
+  setMetaIfNotExists('og:image:secure_url', product.images[0].url, true);
+  setMetaIfNotExists('og:url', `https://www.marbec.click/product-page/${product.sku}`, true);
+  setMetaIfNotExists('description', product.metaDescription);
+  setMetaIfNotExists('twitter:title', product.metaTitle);
+  setMetaIfNotExists('twitter:description', product.metaDescription);
+  setMetaIfNotExists('twitter:image', product.images[0].url);
+};
 const ProductPage = props => {
   const {
-    content
+    content,
+    classes
   } = props;
   const [product, setProduct] = useState(null);
   useEffect(() => {
@@ -29,7 +43,6 @@ const ProductPage = props => {
         const domProps = readDomProps(content);
         setProduct(domProps);
       } else {
-        console.debug('No pre-rendered product detected, load product by sku');
         // Get SKU
         const params = new URLSearchParams(window.location.search);
         if (!params.has('sku')) {
@@ -37,7 +50,7 @@ const ProductPage = props => {
           return;
         }
         const sku = params.get('sku');
-        console.debug('Got sku', sku);
+        console.debug('No pre-rendered product detected, load product by sku', sku);
         const productResponse = await fetchProduct(GRAPHQL_ENDPOINT, sku);
         if (!productResponse) {
           document.location = '/404';
@@ -57,25 +70,26 @@ const ProductPage = props => {
     }
 
     // Block is fully loaded
-    console.debug('Done loading product', product);
+    console.debug('Loaded product, first rendering done, resolving block promise', product);
     props.loadingDone();
 
     // Set metadata
-    if (product.metaTitle) {
-      document.title = product.metaTitle;
-    }
-    setMetaIfNotExists('og:title', product.metaTitle, true);
-    setMetaIfNotExists('og:image', product.images[0].url, true);
-    setMetaIfNotExists('og:image:secure_url', product.images[0].url, true);
-    setMetaIfNotExists('og:url', `https://www.marbec.click/product-page/${product.sku}`, true);
-    setMetaIfNotExists('description', product.metaDescription);
-    setMetaIfNotExists('twitter:title', product.metaTitle);
-    setMetaIfNotExists('twitter:description', product.metaDescription);
-    setMetaIfNotExists('twitter:image', product.images[0].url);
+    updateMetadata(product);
+    (async () => {
+      // Client-side price fetching for when the product is in the DOM
+      if (!product.price) {
+        const price = await fetchProductPrice(GRAPHQL_ENDPOINT, product.sku);
+        console.debug('Enrich server-side rendered product with client-side pricing', price);
+        setProduct(oldProduct => ({
+          ...oldProduct,
+          price
+        }));
+      }
+    })();
   }, [product]);
   if (!product) {
     return h("div", {
-      className: "product-detail-page block"
+      className: classes.join(' ')
     });
   }
   const {
@@ -83,11 +97,12 @@ const ProductPage = props => {
     name,
     description,
     addToCartAllowed,
-    images
+    images,
+    price
   } = product;
   const [firstImage] = images;
   return h("div", {
-    className: "product-detail-page block"
+    className: classes.join(' ')
   }, h("div", {
     className: "gallery"
   }, h(Image, {
@@ -99,9 +114,13 @@ const ProductPage = props => {
     }]
   })), h("div", {
     className: "details"
-  }, h("h1", null, name), addToCartAllowed && h("button", {
+  }, h("h1", null, name), h("div", {
+    className: "pricing"
+  }, h("span", {
+    className: "price"
+  }, price && formatPrice('en-US', price.final.amount.currency, price.final.amount.value)), addToCartAllowed && h("button", {
     "data-sku": sku
-  }, "Add to cart"), h("div", {
+  }, "Add to cart")), h("div", {
     className: "description",
     dangerouslySetInnerHTML: {
       __html: description
@@ -111,9 +130,11 @@ const ProductPage = props => {
 export default function decorate(block) {
   return new Promise(resolve => {
     const content = block.cloneNode(true);
+    const classes = Array.from(content.classList);
     block.textContent = '';
     render(h(ProductPage, {
       content: content,
+      classes: classes,
       loadingDone: resolve
     }), block.parentNode, block);
   });

@@ -1,6 +1,7 @@
 import { h } from 'https://unpkg.com/preact@latest?module';
 
-export const GetProductsBySkus = 'query GetProductsBySkus($skus: [String]) { products(skus: $skus) { sku name description addToCartAllowed metaDescription metaKeyword metaTitle images(roles: ["image"]) { label url } } }';
+export const GetProductsBySkus = 'query GetProductsBySkus($skus:[String]){products(skus:$skus){sku name description addToCartAllowed metaDescription metaKeyword metaTitle images(roles:["image"]){label url}... on SimpleProductView{price{final{amount{value currency}}}}}}';
+export const GetProductPricesBySkus = 'query GetProductPricesBySkus($skus:[String]){products(skus:$skus){... on SimpleProductView{price{final{amount{value currency}}}}}}';
 
 export const fetchProduct = async (endpoint, sku) => {
   const url = new URL(endpoint);
@@ -16,6 +17,22 @@ export const fetchProduct = async (endpoint, sku) => {
 
   return response.data.products && response.data.products.length > 0
     ? response.data.products[0] : null;
+};
+
+export const fetchProductPrice = async (endpoint, sku) => {
+  const url = new URL(endpoint);
+  url.searchParams.set('query', GetProductPricesBySkus);
+  url.searchParams.set('variables', JSON.stringify({ skus: [sku] }));
+
+  const response = await fetch(url, {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+  }).then((res) => res.json());
+
+  return response.data.products && response.data.products.length > 0
+    ? response.data.products[0].price : null;
 };
 
 export const optimizeImageUrl = (url) => {
@@ -87,4 +104,12 @@ export const linkToProductPage = (sku) => {
     return `/product-page/${sku}`;
   }
   return `/product-page?sku=${sku}`;
+};
+
+export const formatPrice = (locale, currency, value) => {
+  const formatter = new Intl.NumberFormat(locale, {
+    style: 'currency',
+    currency,
+  });
+  return formatter.format(value);
 };
