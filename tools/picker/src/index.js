@@ -29,12 +29,12 @@ const blocks = {
         'selection': 'single',
         'type': 'any',
     },
-    'teaser': {
-        'key': 'teaser',
-        'name': 'Teaser',
-        'output': i => `<table width="100%">
+    'product-teaser': {
+        'key': 'product-teaser',
+        'name': 'Product Teaser',
+        'output': i => `<table width="100%" style="border: 1px solid black;">
             <tr>
-                <th colspan="2" style="border: 1px solid black">Product Teaser</th>
+                <th colspan="2" style="border: 1px solid black; background: lightgray;">Product Teaser</th>
             </tr>
             <tr>
                 <td style="border: 1px solid black">sku</td>
@@ -51,9 +51,9 @@ const blocks = {
     'product-carousel': {
         'key': 'product-carousel',
         'name': 'Product Carousel',
-        'output': items => `<table width="100%">
+        'output': items => `<table width="100%" style="border: 1px solid black;">
             <tr>
-                <td style="border: 1px solid black">Product Carousel</td>
+                <th style="border: 1px solid black; background: lightgray;">Product Carousel</th>
             </tr>
             <tr>
                 <td style="border: 1px solid black">
