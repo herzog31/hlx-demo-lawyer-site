@@ -22,6 +22,17 @@
     margin: 0;
 }
 
+.product-detail-page .details .pricing {
+    display: flex;
+    width: 100%;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.product-detail-page .details .price {
+    font-family: var(--fixed-font-family);
+}
+
 @media (min-width: 1024px) {
     .product-detail-page {
         flex-direction: row;

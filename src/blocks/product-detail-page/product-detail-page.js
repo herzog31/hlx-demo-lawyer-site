@@ -6,6 +6,8 @@ import {
   fetchProduct,
   readDomProps,
   Image,
+  fetchProductPrice,
+  formatPrice,
 } from '../../common/product.js';
 
 const setMetaIfNotExists = (name, content, property = false) => {
@@ -23,8 +25,22 @@ const setMetaIfNotExists = (name, content, property = false) => {
   meta.content = content;
 };
 
+const updateMetadata = (product) => {
+  if (product.metaTitle) {
+    document.title = product.metaTitle;
+  }
+  setMetaIfNotExists('og:title', product.metaTitle, true);
+  setMetaIfNotExists('og:image', product.images[0].url, true);
+  setMetaIfNotExists('og:image:secure_url', product.images[0].url, true);
+  setMetaIfNotExists('og:url', `https://www.marbec.click/product-page/${product.sku}`, true);
+  setMetaIfNotExists('description', product.metaDescription);
+  setMetaIfNotExists('twitter:title', product.metaTitle);
+  setMetaIfNotExists('twitter:description', product.metaDescription);
+  setMetaIfNotExists('twitter:image', product.images[0].url);
+};
+
 const ProductPage = (props) => {
-  const { content } = props;
+  const { content, classes } = props;
   const [product, setProduct] = useState(null);
 
   useEffect(() => {
@@ -35,7 +51,6 @@ const ProductPage = (props) => {
         const domProps = readDomProps(content);
         setProduct(domProps);
       } else {
-        console.debug('No pre-rendered product detected, load product by sku');
         // Get SKU
         const params = new URLSearchParams(window.location.search);
         if (!params.has('sku')) {
@@ -43,7 +58,7 @@ const ProductPage = (props) => {
           return;
         }
         const sku = params.get('sku');
-        console.debug('Got sku', sku);
+        console.debug('No pre-rendered product detected, load product by sku', sku);
 
         const productResponse = await fetchProduct(GRAPHQL_ENDPOINT, sku);
         if (!productResponse) {
@@ -67,39 +82,44 @@ const ProductPage = (props) => {
     }
 
     // Block is fully loaded
-    console.debug('Done loading product', product);
+    console.debug('Loaded product, first rendering done, resolving block promise', product);
     props.loadingDone();
 
     // Set metadata
-    if (product.metaTitle) {
-      document.title = product.metaTitle;
-    }
-    setMetaIfNotExists('og:title', product.metaTitle, true);
-    setMetaIfNotExists('og:image', product.images[0].url, true);
-    setMetaIfNotExists('og:image:secure_url', product.images[0].url, true);
-    setMetaIfNotExists('og:url', `https://www.marbec.click/product-page/${product.sku}`, true);
-    setMetaIfNotExists('description', product.metaDescription);
-    setMetaIfNotExists('twitter:title', product.metaTitle);
-    setMetaIfNotExists('twitter:description', product.metaDescription);
-    setMetaIfNotExists('twitter:image', product.images[0].url);
+    updateMetadata(product);
+
+    (async () => {
+      // Client-side price fetching for when the product is in the DOM
+      if (!product.price) {
+        const price = await fetchProductPrice(GRAPHQL_ENDPOINT, product.sku);
+        console.debug('Enrich server-side rendered product with client-side pricing', price);
+        setProduct((oldProduct) => ({
+          ...oldProduct,
+          price,
+        }));
+      }
+    })();
   }, [product]);
 
   if (!product) {
-    return <div className="product-detail-page block" />;
+    return <div className={classes.join(' ')} />;
   }
 
   const {
-    sku, name, description, addToCartAllowed, images,
+    sku, name, description, addToCartAllowed, images, price,
   } = product;
   const [firstImage] = images;
 
-  return <div className="product-detail-page block">
+  return <div className={classes.join(' ')}>
     <div className="gallery">
       <Image src={firstImage.url} alt={firstImage.label} eager={true} breakpoints={[{ width: '350' }]} />
     </div>
     <div className="details">
       <h1>{name}</h1>
-      {addToCartAllowed && <button data-sku={sku}>Add to cart</button>}
+      <div className="pricing">
+        <span className="price">{price && formatPrice('en-US', price.final.amount.currency, price.final.amount.value)}</span>
+        {addToCartAllowed && <button data-sku={sku}>Add to cart</button>}
+      </div>
       <div className="description" dangerouslySetInnerHTML={{ __html: description }} />
     </div>
   </div>;
@@ -108,7 +128,11 @@ const ProductPage = (props) => {
 export default function decorate(block) {
   return new Promise((resolve) => {
     const content = block.cloneNode(true);
+    const classes = Array.from(content.classList);
     block.textContent = '';
-    render(<ProductPage content={content} loadingDone={resolve} />, block.parentNode, block);
+    render(<ProductPage
+      content={content}
+      classes={classes}
+      loadingDone={resolve} />, block.parentNode, block);
   });
 }
