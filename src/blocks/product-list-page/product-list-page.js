@@ -3,88 +3,18 @@ import { useEffect, useState } from 'https://unpkg.com/preact@latest/hooks/dist/
 import { GRAPHQL_ENDPOINT } from '../../../scripts/scripts.js';
 import {
   optimizeImageUrl,
-  fetchProduct,
-  readDomProps,
+  formatPrice,
   Image,
+  linkToProductPage,
 } from '../../common/product.js';
 
-/* const setMetaIfNotExists = (name, content, property = false) => {
-  if (!content) {
-    return;
-  }
-  const meta = document.querySelector(`meta[${property ? 'property' : 'name'}="${name}"]`);
-  if (!meta) {
-    const newMeta = document.createElement('meta');
-    newMeta[property ? 'property' : 'name'] = name;
-    newMeta.content = content;
-    document.head.append(newMeta);
-    return;
-  }
-  meta.content = content;
-}; */
-
-export const GetProductsByCategory = `query GetProductsByCategory(
-    $current_page: Int
-    $phrase: String!
-    $filter: [SearchClauseInput!]
-    $page_size: Int
-    $roles: [String]
-) {
-    productSearch(
-        current_page: $current_page
-        phrase: $phrase
-        filter: $filter
-        page_size: $page_size
-    ) {
-        items {
-            productView {
-                sku
-                name
-                addToCartAllowed
-                images(roles: $roles) {
-                    roles
-                    url
-                    label
-                }
-                ... on SimpleProductView {
-                    price {
-                        final {
-                            amount {
-                                currency
-                                value
-                            }
-                        }
-                    }
-                }
-                ... on ComplexProductView {
-                    priceRange {
-                        minimum {
-                            final {
-                                amount {
-                                    currency
-                                    value
-                                }
-                            }
-                        }
-                    }
-                }
-                __typename
-            }
-        }
-        page_info {
-            current_page
-            page_size
-            total_pages
-        }
-        total_count
-    }
-}`;
+export const GetProductsByCategory = 'query GetProductsByCategory($current_page:Int $phrase:String! $filter:[SearchClauseInput!]$page_size:Int $roles:[String]){productSearch(current_page:$current_page phrase:$phrase filter:$filter page_size:$page_size){items{productView{sku name addToCartAllowed images(roles:$roles){roles url label}... on SimpleProductView{price{final{amount{currency value}}}}... on ComplexProductView{priceRange{minimum{final{amount{currency value}}}}}__typename}}page_info{current_page page_size total_pages}total_count}}';
 
 export const fetchCategory = async (endpoint, key, page = 1) => {
   const url = new URL(endpoint);
   url.searchParams.set('query', GetProductsByCategory);
   url.searchParams.set('variables', JSON.stringify({
-    current_page: 1,
+    current_page: page,
     phrase: '',
     filter: [
       {
@@ -92,7 +22,7 @@ export const fetchCategory = async (endpoint, key, page = 1) => {
         in: [key],
       },
     ],
-    page_size: 20,
+    page_size: 12,
     roles: [
       'thumbnail',
     ],
@@ -109,11 +39,24 @@ export const fetchCategory = async (endpoint, key, page = 1) => {
 };
 
 const CategoryPage = (props) => {
-  const { content, classes } = props;
+  const { classes } = props;
   const [category, setCategory] = useState(null);
+
+  // Current page
+  const params = new URLSearchParams(window.location.search);
+  const [page, setPage] = useState(parseInt(params.get('page'), 10) || 1);
 
   useEffect(() => {
     (async () => {
+      // Update page parameter
+      const newParams = new URLSearchParams(window.location.search);
+      if (page === 1) {
+        newParams.delete('page');
+      } else {
+        newParams.set('page', page);
+      }
+      window.history.replaceState({}, '', `${window.location.pathname}?${newParams.toString()}`);
+
       // Check if empty or not
       if (props.content.querySelector(':scope > div > div').textContent !== '') {
         console.debug('Pre-rendered category detected, parse category from DOM');
@@ -121,14 +64,12 @@ const CategoryPage = (props) => {
       } else {
         console.debug('No pre-rendered category detected, load category by identifier');
         // Get Identifier
-        const params = new URLSearchParams(window.location.search);
         if (!params.has('key')) {
           document.location = '/404';
           return;
         }
         const key = params.get('key');
-        const page = params.get('page') || 1;
-        console.debug('Got category key', key);
+        console.debug('Got category key', key, page);
 
         const categoryResponse = await fetchCategory(GRAPHQL_ENDPOINT, key, page);
         if (!categoryResponse) {
@@ -150,46 +91,65 @@ const CategoryPage = (props) => {
         setCategory(categoryResponse);
       }
     })();
-  }, []);
+  }, [page]);
 
   useEffect(() => {
     if (!category) {
       return;
     }
 
-    console.log('if page has changed, update category');
-
     // Block is fully loaded
     console.debug('Done loading category', category);
     props.loadingDone();
 
-    // Set metadata
-    // TODO
+    // TODO Set metadata once data is available
   }, [category]);
 
   if (!category) {
     return <div className={classes.join(' ')} />;
   }
 
-  const { key, items, page_info: pageInfo } = category;
-
-  console.log('category', category);
+  const { items, page_info: pageInfo } = category;
 
   return <div className={classes.join(' ')}>
     <div className="product-list">
-      {items.map(({ productView: product }) => <div key={product.sku} className="product-list-item">
-        <a href={`/product-page?sku=${product.sku}`}>
-          {product.name || product.sku}
-        </a>
-      </div>)}
+      {items.map(({ productView: product }) => {
+        // Image
+        let firstImage;
+        if (product.images && product.images.length > 0) {
+          [firstImage] = product.images;
+        }
+
+        // Price
+        let price;
+        if (product.price) {
+          price = formatPrice('en-US', product.price.final.amount.currency, product.price.final.amount.value);
+        } else if (product.priceRange) {
+          price = `from ${formatPrice('en-US', product.priceRange.minimum.final.amount.currency, product.priceRange.minimum.final.amount.value)}`;
+        }
+
+        return (<div key={product.sku} className="product-list-item">
+          <a href={linkToProductPage(product.sku)}>
+            <div className="product-image">
+              {firstImage && <Image src={firstImage.url} alt={firstImage.label} breakpoints={[{ width: '390' }]} />}
+            </div>
+            <span className="product-name">{product.name || product.sku}</span>
+          </a>
+          <span className="product-price">{price}</span>
+          <button>Add to Cart</button>
+        </div>);
+      })}
+      {items.length === 0 && <div className="no-products">No products found</div>}
     </div>
     <div className="pagination">
       <ul>
         {Array(pageInfo.total_pages)
           .fill()
-          .map((_, i) => (<li key={i}><button onClick={() => {
-            setCategory((currentState) => ({ ...currentState, page: i + 1 }));
-          }}>{i + 1}</button></li>))
+          .map((_, i) => (
+            <li key={i}>
+              <button disabled={page === (i + 1)} onClick={() => setPage(i + 1)}>{i + 1}</button>
+            </li>
+          ))
         }
       </ul>
     </div>

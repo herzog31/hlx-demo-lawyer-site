@@ -1,7 +1,7 @@
 function _extends() { _extends = Object.assign ? Object.assign.bind() : function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; }; return _extends.apply(this, arguments); }
 import { h } from 'https://unpkg.com/preact@latest?module';
-export const GetProductsBySkus = 'query GetProductsBySkus($skus:[String]){products(skus:$skus){sku name description addToCartAllowed metaDescription metaKeyword metaTitle images(roles:["image"]){label url}... on SimpleProductView{price{final{amount{value currency}}}}}}';
-export const GetProductPricesBySkus = 'query GetProductPricesBySkus($skus:[String]){products(skus:$skus){... on SimpleProductView{price{final{amount{value currency}}}}}}';
+export const GetProductsBySkus = 'query GetProductsBySkus($skus:[String]){products(skus:$skus){sku name description addToCartAllowed metaDescription metaKeyword metaTitle images(roles:["image"]){label url}... on SimpleProductView{price{final{amount{value currency}}}}... on ComplexProductView{priceRange{minimum{final{amount{value currency}}}}}}}';
+export const GetProductPricesBySkus = 'query GetProductPricesBySkus($skus:[String]){products(skus:$skus){... on SimpleProductView{price{final{amount{value currency}}}}... on ComplexProductView{priceRange{minimum{final{amount{value currency}}}}}}}';
 export const fetchProduct = async (endpoint, sku) => {
   const url = new URL(endpoint);
   url.searchParams.set('query', GetProductsBySkus);
@@ -28,7 +28,13 @@ export const fetchProductPrice = async (endpoint, sku) => {
       'Content-Type': 'application/json'
     }
   }).then(res => res.json());
-  return response.data.products && response.data.products.length > 0 ? response.data.products[0].price : null;
+  if (!response.data.products || response.data.products.length === 0) {
+    return [null, false];
+  }
+  if (response.data.products[0].priceRange) {
+    return [response.data.products[0].priceRange, true];
+  }
+  return [response.data.products[0].price, false];
 };
 export const optimizeImageUrl = url => {
   const newURL = new URL(url);

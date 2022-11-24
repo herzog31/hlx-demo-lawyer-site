@@ -90,12 +90,12 @@ const ProductPage = (props) => {
 
     (async () => {
       // Client-side price fetching for when the product is in the DOM
-      if (!product.price) {
-        const price = await fetchProductPrice(GRAPHQL_ENDPOINT, product.sku);
+      if (!product.price && !product.priceRange) {
+        const [price, isRange] = await fetchProductPrice(GRAPHQL_ENDPOINT, product.sku);
         console.debug('Enrich server-side rendered product with client-side pricing', price);
         setProduct((oldProduct) => ({
           ...oldProduct,
-          price,
+          [isRange ? 'priceRange' : 'price']: price,
         }));
       }
     })();
@@ -106,9 +106,17 @@ const ProductPage = (props) => {
   }
 
   const {
-    sku, name, description, addToCartAllowed, images, price,
+    sku, name, description, addToCartAllowed, images, price, priceRange,
   } = product;
   const [firstImage] = images;
+
+  // Price
+  let formattedPrice;
+  if (price) {
+    formattedPrice = formatPrice('en-US', price.final.amount.currency, price.final.amount.value);
+  } else if (priceRange) {
+    formattedPrice = `from ${formatPrice('en-US', priceRange.minimum.final.amount.currency, priceRange.minimum.final.amount.value)}`;
+  }
 
   return <div className={classes.join(' ')}>
     <div className="gallery">
@@ -117,7 +125,7 @@ const ProductPage = (props) => {
     <div className="details">
       <h1>{name}</h1>
       <div className="pricing">
-        <span className="price">{price && formatPrice('en-US', price.final.amount.currency, price.final.amount.value)}</span>
+        <span className="price">{formattedPrice}</span>
         {addToCartAllowed && <button data-sku={sku}>Add to cart</button>}
       </div>
       <div className="description" dangerouslySetInnerHTML={{ __html: description }} />
