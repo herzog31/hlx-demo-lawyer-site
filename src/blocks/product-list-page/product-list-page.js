@@ -189,6 +189,9 @@ const CategoryPage = (props) => {
 
   return <div className={classes.join(' ')}>
     <div className="product-facets">
+      <input type="checkbox" id="show-facets" name="show-facets" />
+      <label htmlFor="show-facets" className="facet-button show-facets">Show Filters</label>
+      <label htmlFor="show-facets" className="facet-button hide-facets">Hide Filters</label>
       {facets.map((facet) => <div key={facet.attribute} className="facet">
         <div className="facet-title">{facet.title}</div>
         <ul className="facet-buckets">

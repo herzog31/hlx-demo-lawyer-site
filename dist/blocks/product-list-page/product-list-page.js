@@ -177,7 +177,17 @@ const CategoryPage = props => {
     className: classes.join(' ')
   }, h("div", {
     className: "product-facets"
-  }, facets.map(facet => h("div", {
+  }, h("input", {
+    type: "checkbox",
+    id: "show-facets",
+    name: "show-facets"
+  }), h("label", {
+    htmlFor: "show-facets",
+    className: "facet-button show-facets"
+  }, "Show Filters"), h("label", {
+    htmlFor: "show-facets",
+    className: "facet-button hide-facets"
+  }, "Hide Filters"), facets.map(facet => h("div", {
     key: facet.attribute,
     className: "facet"
   }, h("div", {
