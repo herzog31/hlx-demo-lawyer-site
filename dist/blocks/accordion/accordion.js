@@ -1,5 +1,5 @@
-import { h, render } from 'https://unpkg.com/preact@latest?module';
-import { useState } from 'https://unpkg.com/preact@latest/hooks/dist/hooks.module.js?module';
+import { h, render } from '../../../scripts/preact.module.js';
+import { useState } from '../../../scripts/hooks.module.js';
 const Accordion = props => {
   const {
     block

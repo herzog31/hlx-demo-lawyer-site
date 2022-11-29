@@ -1,18 +1,15 @@
-import { h, render } from 'https://unpkg.com/preact@latest?module';
-import { useEffect, useState } from 'https://unpkg.com/preact@latest/hooks/dist/hooks.module.js?module';
+import { h, render } from '../../../scripts/preact.module.js';
+import { useEffect, useState } from '../../../scripts/hooks.module.js';
 import { GRAPHQL_ENDPOINT } from '../../../scripts/scripts.js';
 import { optimizeImageUrl, formatPrice, Image, linkToProductPage } from '../../common/product.js';
-export const GetProductsByCategory = 'query GetProductsByCategory($current_page:Int $phrase:String! $filter:[SearchClauseInput!]$page_size:Int $roles:[String]){productSearch(current_page:$current_page phrase:$phrase filter:$filter page_size:$page_size){items{productView{sku name addToCartAllowed images(roles:$roles){roles url label}... on SimpleProductView{price{final{amount{currency value}}}}... on ComplexProductView{priceRange{minimum{final{amount{currency value}}}}}__typename}}page_info{current_page page_size total_pages}total_count}}';
-export const fetchCategory = async (endpoint, key, page = 1) => {
+export const GetProductsByCategory = 'query GetProductsByCategory($current_page:Int $phrase:String! $filter:[SearchClauseInput!]$page_size:Int $roles:[String]){productSearch(current_page:$current_page phrase:$phrase filter:$filter page_size:$page_size){facets{attribute title buckets{title __typename ... on RangeBucket{count from to}... on ScalarBucket{count id}... on StatsBucket{max min}}}items{productView{sku name addToCartAllowed images(roles:$roles){roles url label}... on SimpleProductView{price{final{amount{currency value}}}}... on ComplexProductView{priceRange{minimum{final{amount{currency value}}}}}__typename}}page_info{current_page page_size total_pages}total_count}}';
+export const fetchCategory = async (endpoint, filter, page = 1) => {
   const url = new URL(endpoint);
   url.searchParams.set('query', GetProductsByCategory);
   url.searchParams.set('variables', JSON.stringify({
     current_page: page,
     phrase: '',
-    filter: [{
-      attribute: 'categories',
-      in: [key]
-    }],
+    filter,
     page_size: 12,
     roles: ['thumbnail']
   }));
@@ -22,47 +19,126 @@ export const fetchCategory = async (endpoint, key, page = 1) => {
       'Content-Type': 'application/json'
     }
   }).then(res => res.json());
-  return response.data.productSearch ? response.data.productSearch : null;
+  if (!response.data.productSearch) {
+    return null;
+  }
+
+  // TODO: Fix category facets, because the IDs are numbers, but filtering only
+  // works with the url keys
+  response.data.productSearch.facets = response.data.productSearch.facets.map(facet => {
+    if (facet.attribute !== 'categories') {
+      return facet;
+    }
+    facet.buckets = facet.buckets.map(bucket => ({
+      ...bucket,
+      id: bucket.title
+    }));
+    return facet;
+  });
+  return response.data.productSearch;
+};
+const parseFiltersFromUrl = () => {
+  // TODO: Except type Scalar for everything for now
+  const params = new URLSearchParams(window.location.search);
+  const newFilters = {};
+
+  // Handle page
+  newFilters.page = parseInt(params.get('page'), 10) || 1;
+
+  // Handle key
+  if (params.has('key')) {
+    newFilters.categories = {
+      type: 'ScalarBucket',
+      values: [params.get('key')]
+    };
+  }
+
+  // Handle everything else
+  params.forEach((value, key) => {
+    if (key === 'page' || key === 'key') {
+      return;
+    }
+    newFilters[key] = {
+      type: 'ScalarBucket',
+      values: value.split(',')
+    };
+  });
+  return newFilters;
+};
+const updateQueryParams = filter => {
+  // Create new search params from filters, ignore existing parameters
+  const newParams = new URLSearchParams();
+  Object.keys(filter).forEach(key => {
+    if (key === 'page') {
+      newParams.set(key, filter[key]);
+      return;
+    }
+    newParams.set(key, filter[key].values.join(','));
+  });
+  window.history.replaceState({}, '', `${window.location.pathname}?${newParams.toString()}`);
+};
+const filterToGraphQL = filter => Object.keys(filter).map(key => {
+  if (filter[key].type === 'ScalarBucket') {
+    return {
+      attribute: key,
+      in: filter[key].values
+    };
+  }
+  // TODO: Implement other types
+  return {};
+});
+const toggleFilter = (currentFilters, attribute, type, id) => {
+  const newFilters = {
+    ...currentFilters
+  };
+  // Case A: Add filter if not in filters
+  if (!newFilters[attribute]) {
+    newFilters[attribute] = {
+      type,
+      values: [id]
+    };
+    return newFilters;
+  }
+
+  // Case B: Remove filter if available and in values
+  if (newFilters[attribute].values.includes(id)) {
+    newFilters[attribute].values = newFilters[attribute].values.filter(value => value !== id);
+    if (newFilters[attribute].values.length === 0) {
+      delete newFilters[attribute];
+    }
+    return newFilters;
+  }
+
+  // Case C: Add filter if available but not in values
+  newFilters[attribute].values.push(id);
+  return newFilters;
 };
 const CategoryPage = props => {
   const {
     classes
   } = props;
   const [category, setCategory] = useState(null);
-
-  // Current page
-  const params = new URLSearchParams(window.location.search);
-  const [page, setPage] = useState(parseInt(params.get('page'), 10) || 1);
+  const [filter, setFilter] = useState(parseFiltersFromUrl);
+  const {
+    page,
+    ...otherFilter
+  } = filter;
   useEffect(() => {
     (async () => {
-      // Update page parameter
-      const newParams = new URLSearchParams(window.location.search);
-      if (page === 1) {
-        newParams.delete('page');
-      } else {
-        newParams.set('page', page);
-      }
-      window.history.replaceState({}, '', `${window.location.pathname}?${newParams.toString()}`);
+      // Update filters in URL
+      updateQueryParams(filter);
 
       // Check if empty or not
       if (props.content.querySelector(':scope > div > div').textContent !== '') {
         console.debug('Pre-rendered category detected, parse category from DOM');
         // TODO
       } else {
-        console.debug('No pre-rendered category detected, load category by identifier');
-        // Get Identifier
-        if (!params.has('key')) {
-          document.location = '/404';
-          return;
-        }
-        const key = params.get('key');
-        console.debug('Got category key', key, page);
-        const categoryResponse = await fetchCategory(GRAPHQL_ENDPOINT, key, page);
+        console.debug('No pre-rendered category detected, load category on the client');
+        const categoryResponse = await fetchCategory(GRAPHQL_ENDPOINT, filterToGraphQL(otherFilter), page);
         if (!categoryResponse) {
           document.location = '/404';
           return;
         }
-        categoryResponse.key = key;
         categoryResponse.items.forEach(product => {
           if (!product.productView.images) {
             return;
@@ -75,7 +151,7 @@ const CategoryPage = props => {
         setCategory(categoryResponse);
       }
     })();
-  }, [page]);
+  }, [filter]);
   useEffect(() => {
     if (!category) {
       return;
@@ -94,11 +170,35 @@ const CategoryPage = props => {
   }
   const {
     items,
-    page_info: pageInfo
+    page_info: pageInfo,
+    facets
   } = category;
   return h("div", {
     className: classes.join(' ')
   }, h("div", {
+    className: "product-facets"
+  }, facets.map(facet => h("div", {
+    key: facet.attribute,
+    className: "facet"
+  }, h("div", {
+    className: "facet-title"
+  }, facet.title), h("ul", {
+    className: "facet-buckets"
+  }, facet.buckets.map(bucket => h("li", {
+    key: bucket.id,
+    className: "facet-bucket"
+  }, h("input", {
+    type: "checkbox",
+    id: `facet-${facet.attribute}-${bucket.id}`,
+    checked: filter[facet.attribute] && filter[facet.attribute].values.includes(bucket.id),
+    onClick: () => setFilter(currentFilters => toggleFilter(currentFilters, facet.attribute,
+    // eslint-disable-next-line no-underscore-dangle
+    bucket.__typename, bucket.id))
+  }), h("label", {
+    htmlFor: `facet-${facet.attribute}-${bucket.id}`
+  }, bucket.title, " ", h("span", {
+    className: "facet-count"
+  }, "(", bucket.count, ")")))))))), h("div", {
     className: "product-list"
   }, items.map(({
     productView: product
@@ -142,7 +242,10 @@ const CategoryPage = props => {
     key: i
   }, h("button", {
     disabled: page === i + 1,
-    onClick: () => setPage(i + 1)
+    onClick: () => setFilter(oldState => ({
+      ...oldState,
+      page: i + 1
+    }))
   }, i + 1))))));
 };
 export default function decorate(block) {

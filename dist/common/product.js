@@ -1,5 +1,5 @@
 function _extends() { _extends = Object.assign ? Object.assign.bind() : function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; }; return _extends.apply(this, arguments); }
-import { h } from 'https://unpkg.com/preact@latest?module';
+import { h } from '../../../scripts/preact.module.js';
 export const GetProductsBySkus = 'query GetProductsBySkus($skus:[String]){products(skus:$skus){sku name description addToCartAllowed metaDescription metaKeyword metaTitle images(roles:["image"]){label url}... on SimpleProductView{price{final{amount{value currency}}}}... on ComplexProductView{priceRange{minimum{final{amount{value currency}}}}}}}';
 export const GetProductPricesBySkus = 'query GetProductPricesBySkus($skus:[String]){products(skus:$skus){... on SimpleProductView{price{final{amount{value currency}}}}... on ComplexProductView{priceRange{minimum{final{amount{value currency}}}}}}}';
 export const fetchProduct = async (endpoint, sku) => {
