@@ -1,4 +1,5 @@
 import { h } from '../../../scripts/preact.module.js';
+
 export const GetProductsBySkus = 'query GetProductsBySkus($skus:[String]){products(skus:$skus){sku name description addToCartAllowed metaDescription metaKeyword metaTitle images(roles:["image"]){label url}... on SimpleProductView{price{final{amount{value currency}}}}... on ComplexProductView{priceRange{minimum{final{amount{value currency}}}}}}}';
 export const GetProductPricesBySkus = 'query GetProductPricesBySkus($skus:[String]){products(skus:$skus){... on SimpleProductView{price{final{amount{value currency}}}}... on ComplexProductView{priceRange{minimum{final{amount{value currency}}}}}}}';
 
