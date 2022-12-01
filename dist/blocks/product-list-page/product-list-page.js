@@ -263,7 +263,7 @@ const CategoryPage = props => {
       breakpoints: [{
         width: '390'
       }],
-      eager: index === 0
+      eager: index < 3
     })), h("span", {
       className: "product-name"
     }, product.name || product.sku)), h("span", {

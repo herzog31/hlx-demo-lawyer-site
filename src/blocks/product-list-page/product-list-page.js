@@ -245,7 +245,7 @@ const CategoryPage = (props) => {
         return (<div key={product.sku} className="product-list-item">
           <a href={linkToProductPage(product.sku)}>
             <div className="product-image">
-              {firstImage && <Image src={firstImage.url} alt={firstImage.label} breakpoints={[{ width: '390' }]} eager={index === 0} />}
+              {firstImage && <Image src={firstImage.url} alt={firstImage.label} breakpoints={[{ width: '390' }]} eager={index < 3} />}
             </div>
             <span className="product-name">{product.name || product.sku}</span>
           </a>
