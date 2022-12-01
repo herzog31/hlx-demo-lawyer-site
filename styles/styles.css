@@ -141,29 +141,10 @@ a.button.secondary, button.secondary {
   background-color: unset;
   border: 2px solid currentcolor;
   color: var(--text-color)
-} 
-
-
-main input {
-  font-size: 1.25rem;
-  width: 100%;
-  max-width: 50rem;
-  display: block;
-  margin-bottom: 1rem;
-  padding: 0.75rem 0.6rem;    
-  border-radius: 0.25rem;
-  box-sizing: border-box;
-  border: 1px solid var(--text-color);
-  color: var(--text-color);
-  background-color: var(--background-color);
-}
-
-main input:hover {
-  border: 1px solid var(--text-color);
 }
 
 main .section {
-  padding: 64px 16px;
+  padding: 16px;
 }
 
 main pre {

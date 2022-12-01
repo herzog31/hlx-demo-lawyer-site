@@ -1,0 +1,181 @@
+.product-list-page {
+    display: grid;
+    grid-template: "facet" "list" "pagination";
+}
+
+.product-list-page .product-facets {
+    grid-area: facet;
+    overflow: hidden;
+}
+
+.product-list-page .product-facets > input {
+    display: none;
+}
+
+.product-list-page .product-facets label.facet-button {
+    display: none;
+    font-size: var(--body-font-size-s);
+    color: var(--background-color);
+    background-color: var(--link-color);
+    width: calc(100% - 50px);
+    margin-bottom: 10px;
+    cursor: pointer;
+    justify-content: space-between;
+    align-items: center;
+    border-radius: 30px;
+    font-weight: 600;
+    padding: 5px 25px;
+    font-style: normal; 
+}
+
+.product-list-page .product-facets > input ~ label.show-facets {
+    display: flex;
+}
+
+.product-list-page .product-facets > input:checked ~ label.hide-facets {
+    display: flex;
+}
+
+.product-list-page .product-facets > input:checked ~ label.show-facets {
+    display: none;
+}
+
+.product-list-page .product-facets .facet {
+    font-size: var(--body-font-size-s);
+}
+
+.product-list-page .product-facets > input ~ .facet {
+    display: none;
+}
+
+.product-list-page .product-facets > input:checked ~ .facet {
+    display: block;
+}
+
+.product-list-page .product-facets .facet-buckets {
+    font-size: var(--body-font-size-xs);
+    max-width: 100%;
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+    padding-bottom: 20px;
+}
+
+.product-list-page .product-facets .facet-bucket {
+    display: flex;
+    align-items: center;
+    text-overflow: ellipsis;
+    padding: 2px 0;
+}
+
+.product-list-page .product-facets .facet-bucket input {
+    margin-right: 5px;
+}
+
+.product-list-page .product-facets .facet-bucket label {
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    overflow: hidden;
+}
+
+.product-list-page .product-facets .facet-bucket .facet-count {
+    color: #666;
+    font-size: 12px;
+}
+
+.product-list-page .product-list {
+    grid-area: list;
+    display: grid;
+    grid-template-columns: repeat(1, 1fr);
+    grid-template-rows: 400px;
+    place-items: center;
+    row-gap: 40px;
+    column-gap: 15px;
+}
+
+@media (min-width: 1024px) {
+    .product-list-page .product-facets > input,
+    .product-list-page .product-facets > input ~ label.facet-button,
+    .product-list-page .product-facets > input:checked ~ label.facet-button {
+        display: none;
+    }
+
+    .product-list-page .product-facets > input ~ .facet {
+        display: block;
+    }
+
+    .product-list-page {
+        display: grid;
+        grid-template:
+            "facet list"
+            "facet pagination"
+            / 200px 1fr ;
+    }
+
+    .product-list-page .product-facets {
+        display: block;
+    }
+
+    .product-list-page .product-list {
+        grid-template-columns: repeat(3, 1fr);
+    }
+    
+}
+
+.product-list-page .product-list .product-list-item {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    width: 100%;
+    height: 400px;
+    overflow: hidden;
+}
+
+.product-list-page .product-list .product-list-item button {
+    margin: 0;
+}
+
+.product-list-page .product-list .product-list-item a {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    place-items: center;
+}
+
+.product-list-page .product-list .product-list-item .product-name {
+    width: 100%;
+    color: var(--text-color);
+    text-overflow: ellipsis;
+}
+
+.product-list-page .product-list .product-list-item .product-price {
+    font-family: var(--fixed-font-family);
+}
+
+.product-list-page .product-list .product-list-item .product-image {
+    background: lightgrey;
+    flex: 1;
+    width: 100%;
+    max-height: 299px;
+    text-align: center;
+    overflow: hidden;
+}
+
+.product-list-page .product-list .product-list-item .product-image img {
+    height: 100%;
+}
+
+.product-list-page .pagination {
+    grid-area: pagination;
+    margin-top: 15px;
+}
+
+.product-list-page .pagination ul {
+    list-style-type: none;
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin: 0;
+    padding: 0;
+}

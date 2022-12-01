@@ -1,5 +1,5 @@
-import { h, render } from 'https://unpkg.com/preact@latest?module';
-import { useEffect, useState } from 'https://unpkg.com/preact@latest/hooks/dist/hooks.module.js?module';
+import { h, render } from '../../../scripts/preact.module.js';
+import { useEffect, useState } from '../../../scripts/hooks.module.js';
 import { GRAPHQL_ENDPOINT } from '../../../scripts/scripts.js';
 import {
   fetchProduct,

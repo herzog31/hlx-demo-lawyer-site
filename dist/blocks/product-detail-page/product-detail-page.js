@@ -1,5 +1,5 @@
-import { h, render } from 'https://unpkg.com/preact@latest?module';
-import { useEffect, useState } from 'https://unpkg.com/preact@latest/hooks/dist/hooks.module.js?module';
+import { h, render } from '../../../scripts/preact.module.js';
+import { useEffect, useState } from '../../../scripts/hooks.module.js';
 import { GRAPHQL_ENDPOINT } from '../../../scripts/scripts.js';
 import { optimizeImageUrl, fetchProduct, readDomProps, Image, fetchProductPrice, formatPrice } from '../../common/product.js';
 const setMetaIfNotExists = (name, content, property = false) => {
@@ -77,12 +77,12 @@ const ProductPage = props => {
     updateMetadata(product);
     (async () => {
       // Client-side price fetching for when the product is in the DOM
-      if (!product.price) {
-        const price = await fetchProductPrice(GRAPHQL_ENDPOINT, product.sku);
+      if (!product.price && !product.priceRange) {
+        const [price, isRange] = await fetchProductPrice(GRAPHQL_ENDPOINT, product.sku);
         console.debug('Enrich server-side rendered product with client-side pricing', price);
         setProduct(oldProduct => ({
           ...oldProduct,
-          price
+          [isRange ? 'priceRange' : 'price']: price
         }));
       }
     })();
@@ -98,9 +98,18 @@ const ProductPage = props => {
     description,
     addToCartAllowed,
     images,
-    price
+    price,
+    priceRange
   } = product;
   const [firstImage] = images;
+
+  // Price
+  let formattedPrice;
+  if (price) {
+    formattedPrice = formatPrice('en-US', price.final.amount.currency, price.final.amount.value);
+  } else if (priceRange) {
+    formattedPrice = `from ${formatPrice('en-US', priceRange.minimum.final.amount.currency, priceRange.minimum.final.amount.value)}`;
+  }
   return h("div", {
     className: classes.join(' ')
   }, h("div", {
@@ -118,7 +127,7 @@ const ProductPage = props => {
     className: "pricing"
   }, h("span", {
     className: "price"
-  }, price && formatPrice('en-US', price.final.amount.currency, price.final.amount.value)), addToCartAllowed && h("button", {
+  }, formattedPrice), addToCartAllowed && h("button", {
     "data-sku": sku
   }, "Add to cart")), h("div", {
     className: "description",
