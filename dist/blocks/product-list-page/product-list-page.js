@@ -129,11 +129,11 @@ const CategoryPage = props => {
       updateQueryParams(filter);
 
       // Check if empty or not
-      if (props.content.querySelector(':scope > div > div').textContent !== '') {
-        console.debug('Pre-rendered category detected, parse category from DOM');
+      if (page === 1 && props.content.querySelector(':scope > div > div').textContent !== '') {
+        console.debug('Pre-rendered category with for page 1 detected, parse from DOM');
         // TODO
       } else {
-        console.debug('No pre-rendered category detected, load category on the client');
+        console.debug(`Load category on the client for page ${page}`);
         const categoryResponse = await fetchCategory(GRAPHQL_ENDPOINT, filterToGraphQL(otherFilter), page);
         if (!categoryResponse) {
           document.location = '/404';
@@ -184,10 +184,34 @@ const CategoryPage = props => {
   }), h("label", {
     htmlFor: "show-facets",
     className: "facet-button show-facets"
-  }, "Show Filters"), h("label", {
+  }, h("span", null, "Show Filters"), h("svg", {
+    xmlns: "http://www.w3.org/2000/svg",
+    width: "24",
+    height: "24",
+    viewBox: "0 0 24 24",
+    fill: "none",
+    stroke: "currentColor",
+    strokeWidth: "2",
+    strokeLinecap: "round",
+    strokeLinejoin: "round"
+  }, h("polyline", {
+    points: "6 9 12 15 18 9"
+  }))), h("label", {
     htmlFor: "show-facets",
     className: "facet-button hide-facets"
-  }, "Hide Filters"), facets.map(facet => h("div", {
+  }, h("span", null, "Hide Filters"), h("svg", {
+    xmlns: "http://www.w3.org/2000/svg",
+    width: "24",
+    height: "24",
+    viewBox: "0 0 24 24",
+    fill: "none",
+    stroke: "currentColor",
+    strokeWidth: "2",
+    strokeLinecap: "round",
+    strokeLinejoin: "round"
+  }, h("polyline", {
+    points: "18 15 12 9 6 15"
+  }))), facets.map(facet => h("div", {
     key: facet.attribute,
     className: "facet"
   }, h("div", {
@@ -212,7 +236,7 @@ const CategoryPage = props => {
     className: "product-list"
   }, items.map(({
     productView: product
-  }) => {
+  }, index) => {
     // Image
     let firstImage;
     if (product.images && product.images.length > 0) {
@@ -238,7 +262,8 @@ const CategoryPage = props => {
       alt: firstImage.label,
       breakpoints: [{
         width: '390'
-      }]
+      }],
+      eager: index === 0
     })), h("span", {
       className: "product-name"
     }, product.name || product.sku)), h("span", {

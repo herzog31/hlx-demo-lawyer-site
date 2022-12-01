@@ -138,11 +138,11 @@ const CategoryPage = (props) => {
       updateQueryParams(filter);
 
       // Check if empty or not
-      if (props.content.querySelector(':scope > div > div').textContent !== '') {
-        console.debug('Pre-rendered category detected, parse category from DOM');
+      if (page === 1 && props.content.querySelector(':scope > div > div').textContent !== '') {
+        console.debug('Pre-rendered category with for page 1 detected, parse from DOM');
         // TODO
       } else {
-        console.debug('No pre-rendered category detected, load category on the client');
+        console.debug(`Load category on the client for page ${page}`);
 
         const categoryResponse = await fetchCategory(
           GRAPHQL_ENDPOINT,
@@ -190,8 +190,18 @@ const CategoryPage = (props) => {
   return <div className={classes.join(' ')}>
     <div className="product-facets">
       <input type="checkbox" id="show-facets" name="show-facets" />
-      <label htmlFor="show-facets" className="facet-button show-facets">Show Filters</label>
-      <label htmlFor="show-facets" className="facet-button hide-facets">Hide Filters</label>
+      <label htmlFor="show-facets" className="facet-button show-facets">
+        <span>Show Filters</span>
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <polyline points="6 9 12 15 18 9"></polyline>
+        </svg>
+      </label>
+      <label htmlFor="show-facets" className="facet-button hide-facets">
+        <span>Hide Filters</span>
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <polyline points="18 15 12 9 6 15"></polyline>
+        </svg>
+      </label>
       {facets.map((facet) => <div key={facet.attribute} className="facet">
         <div className="facet-title">{facet.title}</div>
         <ul className="facet-buckets">
@@ -217,7 +227,7 @@ const CategoryPage = (props) => {
       </div>)}
     </div>
     <div className="product-list">
-      {items.map(({ productView: product }) => {
+      {items.map(({ productView: product }, index) => {
         // Image
         let firstImage;
         if (product.images && product.images.length > 0) {
@@ -235,7 +245,7 @@ const CategoryPage = (props) => {
         return (<div key={product.sku} className="product-list-item">
           <a href={linkToProductPage(product.sku)}>
             <div className="product-image">
-              {firstImage && <Image src={firstImage.url} alt={firstImage.label} breakpoints={[{ width: '390' }]} />}
+              {firstImage && <Image src={firstImage.url} alt={firstImage.label} breakpoints={[{ width: '390' }]} eager={index === 0} />}
             </div>
             <span className="product-name">{product.name || product.sku}</span>
           </a>

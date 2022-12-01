@@ -16,20 +16,28 @@
 
 .product-list-page .product-facets label.facet-button {
     display: none;
-    font-size: var(--body-font-size-m);
-    width: 100%;
+    font-size: var(--body-font-size-s);
+    color: var(--background-color);
+    background-color: var(--link-color);
+    width: calc(100% - 50px);
     padding: 4px;
-    background: var(--highlight-background-color);
+    /* background: var(--highlight-background-color); */
     margin-bottom: 10px;
     cursor: pointer;
+    justify-content: space-between;
+    align-items: center;
+    border-radius: 30px;
+    font-weight: 600;
+    padding: 5px 25px;
+    font-style: normal; 
 }
 
 .product-list-page .product-facets > input ~ label.show-facets {
-    display: block;
+    display: flex;
 }
 
 .product-list-page .product-facets > input:checked ~ label.hide-facets {
-    display: block;
+    display: flex;
 }
 
 .product-list-page .product-facets > input:checked ~ label.show-facets {
@@ -84,6 +92,7 @@
     grid-area: list;
     display: grid;
     grid-template-columns: repeat(1, 1fr);
+    grid-template-rows: 400px;
     place-items: center;
     row-gap: 40px;
     column-gap: 15px;
@@ -91,7 +100,8 @@
 
 @media (min-width: 1024px) {
     .product-list-page .product-facets > input,
-    .product-list-page .product-facets > input ~ label.facet-button {
+    .product-list-page .product-facets > input ~ label.facet-button,
+    .product-list-page .product-facets > input:checked ~ label.facet-button {
         display: none;
     }
 
