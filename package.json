@@ -10,7 +10,7 @@
     "lint:css": "stylelint 'src/blocks/**/*.css' 'styles/*.css'",
     "lint": "npm run lint:js && npm run lint:css",
     "build": "babel src --out-dir dist",
-    "start": "npm run build && hlx up"
+    "start": "npm run build && hlx up --print-index"
   },
   "repository": {
     "type": "git",

@@ -53,7 +53,7 @@ indices:
       categories:
         select: head > meta[name="categories"]
         values: |
-          match(attribute(el, 'content'), '([^ ,]+)')
+          match(attribute(el, 'content'), '([^,]+)')
       image:
         select: head > meta[property="og:image"]
         value: |
@@ -66,4 +66,17 @@ indices:
         select: head > meta[name="difficulty"]
         value: |
           attribute(el, 'content')
+  enrichment:
+    include:
+      - '/enrichment/**'
+    target: /enrichment/enrichment-index
+    properties:
+      image:
+        select: head > meta[property="og:image"]
+        value: |
+          match(attribute(el, 'content'), 'https:\/\/[^/]+(\/.*)')
+      products:
+        select: head > meta[name="products"]
+        values: |
+          match(attribute(el, 'content'), '([^,]+)')
 
