@@ -8,8 +8,7 @@ import getProductsInCategory from './queries/products.graphql.js';
 
 import './styles.css';
 
-// TODO: Replace with endpoint via CF Worker to avoid CORS issues
-const endpoint = 'https://graph.adobe.io/api/86e3b058-a382-4f9c-b73f-8edf67f98e46/graphql?api_key=67b0c8fbcc8f4eaeb4690cd812ba578a';
+const endpoint = 'https://www.marbec.click/graphql-monolith';
 
 /**
  * List of blocks to be available in the picker.
