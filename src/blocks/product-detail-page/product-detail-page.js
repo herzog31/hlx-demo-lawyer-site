@@ -40,7 +40,7 @@ const updateMetadata = (product) => {
 };
 
 const ProductPage = (props) => {
-  const { content, classes } = props;
+  const { content, classes, addToCart } = props;
   const [product, setProduct] = useState(null);
 
   useEffect(() => {
@@ -126,7 +126,7 @@ const ProductPage = (props) => {
       <h1>{name}</h1>
       <div className="pricing">
         <span className="price">{formattedPrice}</span>
-        {addToCartAllowed && <button data-sku={sku}>Add to cart</button>}
+        {addToCartAllowed && <button onClick={() => addToCart(sku)}>Add to cart</button>}
       </div>
       <div className="description" dangerouslySetInnerHTML={{ __html: description }} />
     </div>
@@ -141,6 +141,7 @@ export default function decorate(block) {
     render(<ProductPage
       content={content}
       classes={classes}
+      addToCart={() => {}}
       loadingDone={resolve} />, block.parentNode, block);
   });
 }
