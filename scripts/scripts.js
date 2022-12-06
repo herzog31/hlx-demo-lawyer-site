@@ -17,6 +17,9 @@ const LCP_BLOCKS = ['product-detail-page']; // add your LCP blocks to the list
 window.hlx.RUM_GENERATION = 'project-1'; // add your RUM generation information here
 
 export const GRAPHQL_ENDPOINT = 'https://www.marbec.click/graphql';
+const MFE_ROOT_PATH = 'https://localhost:3001';
+
+export const importFromStorefrontSDK = (path) => import(MFE_ROOT_PATH + path);
 
 function buildHeroBlock(main) {
   const h1 = main.querySelector('h1');

@@ -1,10 +1,9 @@
-import { renderer } from '../../../scripts/catalog-pdp/api.js';
-import { ProductDetailPage } from '../../../scripts/catalog-pdp/containers/CatalogPdp.js';
-export default function decorate(block) {
+import { importFromStorefrontSDK } from '../../../scripts/scripts.js';
+import { renderer } from '../../common/renderer.js';
+export default async function decorate(block) {
   block.textContent = '';
-  const elem = Object.assign(document.createElement('div'), {
-    id: 'catalog-pdp'
-  });
-  renderer(ProductDetailPage)(elem);
-  block.append(elem);
+  const {
+    ProductDetailPage
+  } = await importFromStorefrontSDK('/catalog/containers/pdp.js');
+  renderer(ProductDetailPage)(block);
 }

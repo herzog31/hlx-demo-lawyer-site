@@ -1,5 +1,5 @@
 /* eslint-disable import/prefer-default-export */
 
-import { importFromStorefrontSDK } from './config.js';
+import { importFromStorefrontSDK } from '../../scripts/scripts.js';
 
 export const { renderer } = await importFromStorefrontSDK('/catalog/renderer.js');
