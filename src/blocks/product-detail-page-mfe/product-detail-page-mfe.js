@@ -19,9 +19,7 @@ export default async function decorate(block) {
     window.history.replaceState(null, null, url);
   });
 
-
   selectedQuantity.watch((newValue) => {
     console.log('--FRANKLIN QUANTITY UPDATED-- ', newValue);
   });
-
 }
