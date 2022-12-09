@@ -4,7 +4,12 @@ import { renderer } from '../../common/renderer.js';
 export default async function decorate(block) {
   block.textContent = '';
   const { ProductDetailPage } = await importFromStorefrontSDK('/catalog/containers/pdp.js');
-  const { onAddToCart, selectedQuantity, onUpdateWishlist, onOptionSelect } = await importFromStorefrontSDK('/catalog/api.js');
+  const { 
+    onAddToCart,
+    selectedQuantity,
+    onUpdateWishlist,
+    onOptionSelect,
+  } = await importFromStorefrontSDK('/catalog/api.js');
   renderer(ProductDetailPage)(block);
 
   onAddToCart.register('onAddToCart', (data) => console.log('--FRANKLIN ADD TO CART-- ', data));
