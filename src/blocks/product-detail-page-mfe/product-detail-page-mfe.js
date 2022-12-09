@@ -4,7 +4,7 @@ import { renderer } from '../../common/renderer.js';
 export default async function decorate(block) {
   block.textContent = '';
   const { ProductDetailPage } = await importFromStorefrontSDK('/catalog/containers/pdp.js');
-  const { 
+  const {
     onAddToCart,
     selectedQuantity,
     onUpdateWishlist,
