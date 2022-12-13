@@ -12,15 +12,15 @@ export default async function decorate(block) {
     onOptionSelect
   } = await importFromStorefrontSDK('/catalog/api.js');
   renderer(ProductDetailPage)(block);
-  onAddToCart.register('onAddToCart', data => console.log('--FRANKLIN ADD TO CART-- ', data));
-  onUpdateWishlist.register('onUpdateWishlist', data => console.log('--FRANKLIN WISHLIST--', data));
+  onAddToCart.register('onAddToCart', data => console.log('Fraklin host / add to cart', data));
+  onUpdateWishlist.register('onUpdateWishlist', data => console.log('Franklin host / update wishlist', data));
   onOptionSelect.register('onOptionSelect', data => {
-    console.log('--FRANKLIN OPTION SELECTION-- ', data);
+    console.log('Franklin host / select option', data);
     const url = new URL(window.location.href);
     url.searchParams.set(data.option, data.value);
     window.history.replaceState(null, null, url);
   });
   selectedQuantity.watch(newValue => {
-    console.log('--FRANKLIN QUANTITY UPDATED-- ', newValue);
+    console.log('Franklin host / quantity updated', newValue);
   });
 }
